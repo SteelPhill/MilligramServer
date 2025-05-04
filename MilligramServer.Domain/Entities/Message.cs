@@ -9,5 +9,7 @@ public class Message
     public string? FilePath { get; set; }
     public DateTime CreationTime { get; set; }
     public DateTime LastChangeTime { get; set; }
+    public Guid ChatId { get; set; }
+    public Chat Chat { get; set; }
     public bool IsDeleted { get; set; }
 }
