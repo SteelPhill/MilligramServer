@@ -23,7 +23,7 @@ public class ApplicationContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MilligramDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        optionsBuilder.UseSqlServer(Constants.ConnectionString);
         optionsBuilder.LogTo(LogMessage, LogLevel.Information);
     }
 
@@ -38,7 +38,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<User>()
             .Property(u => u.Login)
-            .HasMaxLength(50);
+            .HasMaxLength(Constants.MaxUserLoginLength);
 
         modelBuilder.Entity<User>()
             .ToTable(t => t.HasCheckConstraint(
@@ -56,7 +56,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<User>()
             .Property(u => u.Name)
-            .HasMaxLength(50);
+            .HasMaxLength(Constants.MaxUserNameLength);
 
         modelBuilder.Entity<User>()
             .ToTable(t => t.HasCheckConstraint(
@@ -65,7 +65,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<User>()
              .Property(u => u.PasswordHash)
-             .HasAnnotation("MinLength", 8);
+             .HasAnnotation("MinLength", Constants.MinUserPasswordLength);
 
         modelBuilder.Entity<User>()
             .ToTable(t => t.HasCheckConstraint(
@@ -82,7 +82,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<Role>()
             .Property(r => r.Name)
-            .HasMaxLength(50);
+            .HasMaxLength(Constants.MaxRoleNameLength);
 
         modelBuilder.Entity<Role>()
             .ToTable(t => t.HasCheckConstraint(
@@ -112,13 +112,13 @@ public class ApplicationContext : DbContext
             .HasOne(ur => ur.User)
             .WithMany(u => u.UsersRoles)
             .HasForeignKey(ur => ur.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<UserRole>()
             .HasOne(ur => ur.Role)
             .WithMany(r => r.UsersRoles)
             .HasForeignKey(ur => ur.RoleId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         #endregion
 
@@ -127,11 +127,12 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Chat>()
             .HasOne(c => c.OwnerUser)
             .WithMany(u => u.ChatsOwner)
-            .HasForeignKey(c => c.OwnerUserId);
+            .HasForeignKey(c => c.OwnerUserId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Chat>()
            .Property(c => c.Name)
-           .HasMaxLength(50);
+           .HasMaxLength(Constants.MaxChatNameLength);
 
         modelBuilder.Entity<Chat>()
             .ToTable(t => t.HasCheckConstraint(
@@ -152,13 +153,13 @@ public class ApplicationContext : DbContext
             .HasOne(uc => uc.User)
             .WithMany(u => u.UsersChats)
             .HasForeignKey(uc => uc.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<UserChat>()
             .HasOne(uc => uc.Chat)
             .WithMany(c => c.UsersChats)
             .HasForeignKey(uc => uc.ChatId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         #endregion
 
@@ -168,7 +169,7 @@ public class ApplicationContext : DbContext
             .HasOne(c => c.OwnerUser)
             .WithMany(u => u.OwnerUserForContacts)
             .HasForeignKey(c => c.OwnerUserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Contact>()
             .HasOne(c => c.AddedUser)
@@ -178,7 +179,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<Contact>()
             .Property(c => c.Name)
-            .HasMaxLength(50);
+            .HasMaxLength(Constants.MaxContactNameLength);
 
         modelBuilder.Entity<Contact>()
             .ToTable(t => t.HasCheckConstraint(
@@ -195,7 +196,8 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<Message>()
             .HasOne(m => m.Chat)
             .WithMany(c => c.Messages)
-            .HasForeignKey(m => m.ChatId);
+            .HasForeignKey(m => m.ChatId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Message>()
             .Property(m => m.CreationTime)

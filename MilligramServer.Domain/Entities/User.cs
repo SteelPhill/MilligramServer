@@ -1,7 +1,5 @@
 ﻿#pragma warning disable CS8618
 
-using System;
-
 namespace MilligramServer.Domain.Entities;
 
 public class User
