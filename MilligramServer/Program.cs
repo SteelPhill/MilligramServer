@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using MilligramServer.Database.Context;
+
 namespace MilligramServer;
 
 public class Program
@@ -5,6 +8,9 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddDbContext<ApplicationContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
