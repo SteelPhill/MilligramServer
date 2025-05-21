@@ -16,14 +16,18 @@ public class ApplicationContext : DbContext
 
     private readonly ILogger<ApplicationContext>? _logger;
 
-    public ApplicationContext(ILogger<ApplicationContext>? logger = null)
+    public ApplicationContext(
+        DbContextOptions<ApplicationContext> dbContextOptions,
+        ILogger<ApplicationContext>? logger = null)
+        : base(dbContextOptions)
     {
         _logger = logger;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(Constants.ConnectionString);
+        base.OnConfiguring(optionsBuilder);
+
         optionsBuilder.LogTo(LogMessage, LogLevel.Information);
     }
 
@@ -37,31 +41,31 @@ public class ApplicationContext : DbContext
         #region User
 
         modelBuilder.Entity<User>()
-            .Property(u => u.Login)
-            .HasMaxLength(Constants.MaxUserLoginLength);
-
-        modelBuilder.Entity<User>()
-            .ToTable(t => t.HasCheckConstraint(
-                "CK_Users_Login",
-                "LEN(Login) > 0"));
-
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.NormalizedLogin)
-            .IsUnique();
-
-        modelBuilder.Entity<User>()
-            .ToTable(t => t.HasCheckConstraint(
-                "CK_Users_NormalizedLogin",
-                "LEN(NormalizedLogin) > 0"));
-
-        modelBuilder.Entity<User>()
             .Property(u => u.Name)
-            .HasMaxLength(Constants.MaxUserNameLength);
+            .HasMaxLength(Constants.MaxUserLoginLength);
 
         modelBuilder.Entity<User>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Users_Name",
                 "LEN(Name) > 0"));
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.NormalizedName)
+            .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .ToTable(t => t.HasCheckConstraint(
+                "CK_Users_NormalizedName",
+                "LEN(NormalizedName) > 0"));
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.Nickname)
+            .HasMaxLength(Constants.MaxUserNameLength);
+
+        modelBuilder.Entity<User>()
+            .ToTable(t => t.HasCheckConstraint(
+                "CK_Users_Nickname",
+                "LEN(Nickname) > 0"));
 
         modelBuilder.Entity<User>()
              .Property(u => u.PasswordHash)
@@ -72,9 +76,6 @@ public class ApplicationContext : DbContext
                 "CK_Users_PasswordHash",
                 "LEN(PasswordHash) >= 8"
             ));
-
-        modelBuilder.Entity<User>()
-            .HasQueryFilter(u => !u.IsDeleted);
 
         #endregion
 
@@ -97,9 +98,6 @@ public class ApplicationContext : DbContext
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Roles_NormalizedName",
                 "LEN(NormalizedName) > 0"));
-
-        modelBuilder.Entity<Role>()
-            .HasQueryFilter(r => !r.IsDeleted);
 
         #endregion
 
@@ -138,9 +136,6 @@ public class ApplicationContext : DbContext
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Chats_Name",
                 "LEN(Name) > 0"));
-
-        modelBuilder.Entity<Chat>()
-            .HasQueryFilter(c => !c.IsDeleted);
 
         #endregion
 
@@ -186,9 +181,6 @@ public class ApplicationContext : DbContext
                 "CK_Contacts_Name",
                 "Name IS NULL OR LEN(Name) > 0"));
 
-        modelBuilder.Entity<Contact>()
-            .HasQueryFilter(c => !c.IsDeleted);
-
         #endregion
 
         #region Message
@@ -216,9 +208,6 @@ public class ApplicationContext : DbContext
             .ToTable(t => t.HasCheckConstraint(
                 "CK_Messages_FilePath",
                 "FilePath IS NULL OR LEN(FilePath) > 0"));
-
-        modelBuilder.Entity<Message>()
-            .HasQueryFilter(m => !m.IsDeleted);
 
         #endregion
     }
