@@ -21,6 +21,7 @@
     <ProjectReference Include="..\MilligramServer.Common\MilligramServer.Common.csproj" />
     <ProjectReference Include="..\MilligramServer.Database\MilligramServer.Database.csproj" />
     <ProjectReference Include="..\MilligramServer.Domain\MilligramServer.Domain.csproj" />
+    <ProjectReference Include="..\MilligramServer.Services\MilligramServer.Services.csproj" />
   </ItemGroup>
 
 </Project>
