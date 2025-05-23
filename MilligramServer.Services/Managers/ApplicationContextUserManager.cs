@@ -58,12 +58,9 @@ public class ApplicationContextUserManager : UserManager<User>
             .FindByNameAndLoadRolesAsync(userName, CancellationToken).ConfigureAwait(false);
     }
 
-    public async Task Restore(string userName)
+    public async Task RestoreAsync(User user)
     {
         var applicationContextUserStore = (IApplicationContextUserStore)Store;
-
-        var user = applicationContextUserStore.FindByNameAsync(userName, CancellationToken).Result;
-        if (user != null) 
-            await applicationContextUserStore.RestoreAsync(user, CancellationToken).ConfigureAwait(false);
+        await applicationContextUserStore.RestoreAsync(user, CancellationToken);
     }
 }
