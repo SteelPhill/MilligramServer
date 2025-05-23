@@ -5,4 +5,5 @@ namespace MilligramServer.Services.Stores;
 
 public interface IApplicationContextRoleStore : IQueryableRoleStore<Role>
 {
+    Task<IdentityResult> RestoreAsync(Role role, CancellationToken cancellationToken);
 }

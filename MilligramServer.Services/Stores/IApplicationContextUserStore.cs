@@ -7,4 +7,8 @@ public interface IApplicationContextUserStore : IQueryableUserStore<User>, IUser
 {
     Task<User?> FindByIdAndLoadRolesAsync(string userId, CancellationToken cancellationToken);
     Task<User?> FindByNameAndLoadRolesAsync(string normalizedUserName, CancellationToken cancellationToken);
+    Task<IdentityResult> RestoreAsync(User user, CancellationToken cancellationToken);
+    Task<string?> GetUserNicknameAsync(User user, CancellationToken cancellationToken);
+    Task SetUserNicknameAsync(User user, string? nickname, CancellationToken cancellationToken);
+    Task<User?> FindByNicknameAsync(string nickname, CancellationToken cancellationToken);
 }
