@@ -4,6 +4,7 @@ using MilligramServer.Database.Context.Factory;
 using MilligramServer.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace MilligramServer.Services.Stores;
 
@@ -55,8 +56,20 @@ public class ApplicationContextUserStore : IApplicationContextUserStore, IAsyncD
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        user.NormalizedName = normalizedName.EmptyIfNull();
+        user.NormalizedName = NormalizeName(normalizedName)!;
+
         return Task.CompletedTask;
+    }
+
+    private string? NormalizeName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        return name
+            .ToUpperInvariant()
+            .Replace("ё", "е")
+            .Normalize(NormalizationForm.FormC);
     }
 
     public Task<string?> GetUserNicknameAsync(User user, CancellationToken cancellationToken)

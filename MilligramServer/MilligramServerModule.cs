@@ -36,5 +36,12 @@ public static class MilligramServerModule
         service.AddIdentity<User, Role>()
             .AddUserStore<ApplicationContextUserStore>()
             .AddRoleStore<ApplicationContextRoleStore>();
+
+        service.AddIdentityCore<User>(options =>
+        {
+            options.User.AllowedUserNameCharacters = Constants.AllowedUserNameCharacters;
+        })
+        .AddUserStore<ApplicationContextUserStore>()
+        .AddDefaultTokenProviders();
     }
 }
