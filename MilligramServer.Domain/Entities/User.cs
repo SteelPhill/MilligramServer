@@ -7,7 +7,7 @@ public class User
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string NormalizedName { get; set; }
-    public string? Nickname { get; set; }
+    public string Nickname { get; set; }
     public string PasswordHash { get; set; }
     public ICollection<UserRole> UsersRoles { get; set; } = new List<UserRole>();
     public ICollection<Contact> AddedUserForContacts  { get; set; } = new List<Contact>();

@@ -76,7 +76,7 @@ public class ApplicationContextUserStore : IApplicationContextUserStore, IAsyncD
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return Task.FromResult(user.Nickname);
+        return Task.FromResult(user.Nickname)!;
     }
 
     public Task SetUserNicknameAsync(User user, string? nickname, CancellationToken cancellationToken)

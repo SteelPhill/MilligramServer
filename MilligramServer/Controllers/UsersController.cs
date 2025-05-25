@@ -126,12 +126,18 @@ public class UsersController : Controller
         {
             var results = await _applicationContextUserManager.PasswordValidators
                 .ToAsyncEnumerable()
-                .SelectAwait(async passwordValidator => await passwordValidator.ValidateAsync(_applicationContextUserManager, null!, model.NewPassword))
+                .SelectAwait(async passwordValidator => await passwordValidator
+                    .ValidateAsync(_applicationContextUserManager, null!, model.NewPassword))
                 .ToArrayAsync(cancellationToken);
 
             if (results.Any(result => !result.Succeeded))
-                results.SelectMany(result => result.Errors).ForEach(error => ModelState.AddModelError(nameof(model.NewPassword), error.Description));
+                results
+                    .SelectMany(result => result.Errors)
+                    .ForEach(error => ModelState.AddModelError(nameof(model.NewPassword), error.Description));
         }
+
+        if (model.Nickname.IsNullOrEmpty())
+            ModelState.AddModelError(nameof(model.Nickname), "Имя должно быть заполнено");
 
         if (!ModelState.IsValid)
             return View(model);
@@ -143,6 +149,12 @@ public class UsersController : Controller
         if (user.Name != model.Name)
         {
             user.Name = model.Name;
+            await _applicationContextUserManager.UpdateAsync(user);
+        }
+
+        if (user.Nickname != model.Nickname)
+        {
+            user.Nickname = model.Nickname!;
             await _applicationContextUserManager.UpdateAsync(user);
         }
 

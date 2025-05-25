@@ -42,7 +42,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<User>()
             .Property(u => u.Name)
-            .HasMaxLength(Constants.MaxUserLoginLength);
+            .HasMaxLength(Constants.MaxUserNameLength);
 
         modelBuilder.Entity<User>()
             .ToTable(t => t.HasCheckConstraint(
@@ -60,7 +60,7 @@ public class ApplicationContext : DbContext
 
         modelBuilder.Entity<User>()
             .Property(u => u.Nickname)
-            .HasMaxLength(Constants.MaxUserNameLength);
+            .HasMaxLength(Constants.MaxUserNicknameLength);
 
         modelBuilder.Entity<User>()
             .ToTable(t => t.HasCheckConstraint(
@@ -189,6 +189,12 @@ public class ApplicationContext : DbContext
             .HasOne(m => m.Chat)
             .WithMany(c => c.Messages)
             .HasForeignKey(m => m.ChatId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Message>()
+            .HasOne(m => m.User)
+            .WithMany(u => u.Messages)
+            .HasForeignKey(m => m.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Message>()

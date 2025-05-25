@@ -1,6 +1,6 @@
 ﻿@model UserModel
 @{
-    ViewData["Title"] = $"Редактирование пользователя (id = {Model.Id})";
+    ViewData["Title"] = $"Редактирование пользователя (Login = {Model.Name})";
 }
 
 <div class="text-center">
@@ -14,6 +14,12 @@
             <label asp-for="Name">@Html.DisplayNameFor(model => model.Name):</label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label asp-for="Nickname">@Html.DisplayNameFor(model => model.Nickname):</label>
+            <input asp-for="Nickname" class="form-control" />
+            <span asp-validation-for="Nickname" class="text-danger"></span>
         </div>
 
         <div style="margin-top: 20px;">
@@ -39,13 +45,40 @@
         </div>
 
         <div style="margin-top: 20px;">
-            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> Сохранить</button>
+            <button type="submit" class="btn btn-sm btn-primary" style="width: 200px;"><i class="fa fa-floppy-o"></i> 
+                Сохранить
+            </button>
         </div>
     </div>
 }
 
-@using (Html.BeginForm("Delete", "Users", new { Model.Id }, FormMethod.Post))
+@if (!Model.IsDeleted)
 {
-    <button type="submit" class="btn btn-sm btn-danger" style="margin-top: 5px; width: 200px;" onclick="return deleteConfirm('пользвоателя', '@Model.Id');"><i class="fa fa-trash"></i> Удалить</button>
+    @using (Html.BeginForm("Delete", "Users", new { Model.Id }, FormMethod.Post))
+    {
+        <button 
+            type="submit" 
+            class="btn btn-sm btn-danger" 
+            style="margin-top: 5px; width: 200px;" 
+            onclick="return deleteConfirm('пользователя @Model.Name?', '@Model.Id');"><i class="fa fa-trash"></i> 
+            Удалить
+        </button>
+    }
 }
-<a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> Вернуться</a>
+else
+{
+    @using (Html.BeginForm("Restore", "Users", new { Model.Id }, FormMethod.Post))
+    {
+        <button 
+            type="submit" 
+            class="btn btn-sm btn-success" 
+            style="margin-top: 5px; width: 200px;" 
+            onclick="return restoreConfirm('пользователя @Model.Name?', '@Model.Id');"><i class="fa fa-undo"></i> 
+            Восстановить
+        </button>
+    }
+}
+
+<a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> 
+    Вернуться
+</a>
