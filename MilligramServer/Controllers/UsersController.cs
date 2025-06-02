@@ -29,7 +29,6 @@ public class UsersController : Controller
         CancellationToken cancellationToken)
     {
         var usersQuery = _applicationContextUserManager.Users
-            .IgnoreQueryFilters()
             .Include(user => user.UsersRoles)
             .ThenInclude(userRole => userRole.Role)
             .AsNoTracking();
@@ -138,7 +137,6 @@ public class UsersController : Controller
 
         if (model.Nickname.IsNullOrEmpty())
             ModelState.AddModelError(nameof(model.Nickname), "Имя должно быть заполнено");
-
         if (!ModelState.IsValid)
             return View(model);
 
@@ -187,7 +185,8 @@ public class UsersController : Controller
 
     [HttpPost("[controller]/[action]/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete(
+        [FromRoute] Guid id)
     {
         var user = await _applicationContextUserManager.FindByIdAsync(id.ToString());
         if (user == null)
@@ -200,7 +199,8 @@ public class UsersController : Controller
     
     [HttpPost("[controller]/[action]/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Restore([FromRoute] Guid id)
+    public async Task<IActionResult> Restore(
+        [FromRoute] Guid id)
     {
         var user = await _applicationContextUserManager.FindByIdAsync(id.ToString());
         if (user == null)

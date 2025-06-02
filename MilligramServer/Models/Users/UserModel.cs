@@ -1,6 +1,4 @@
 ﻿#pragma warning disable CS8618
-// ReSharper disable PropertyCanBeMadeInitOnly.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -29,6 +27,6 @@ public class UserModel
     [DisplayName("Swagger")]
     public bool HasSwaggerRole { get; set; }
 
-    [DisplayName("Удалён")]
+    [DisplayName("Статус")]
     public bool IsDeleted { get; set; }
 }

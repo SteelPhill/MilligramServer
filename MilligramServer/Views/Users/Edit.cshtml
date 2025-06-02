@@ -1,10 +1,17 @@
 ﻿@model UserModel
+
 @{
-    ViewData["Title"] = $"Редактирование пользователя (Login = {Model.Name})";
+    ViewData["Title"] = $"Редактирование пользователя (Id = {Model.Id}, Login = {Model.Name})";
 }
 
-<div class="text-center">
-    <h2>@ViewData["Title"]</h2>
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>
+            Редактирование пользователя<br />
+            <small class="text-muted">Id = @Model.Id</small><br />
+            <small class="text-muted">Login = @Model.Name</small>
+        </h2>
+    </div>
 </div>
 
 @using (Html.BeginForm("Edit", "Users", FormMethod.Post))
@@ -78,7 +85,3 @@ else
         </button>
     }
 }
-
-<a asp-action="Index" class="btn btn-sm btn-secondary" style="margin-top: 5px; width: 200px;"><i class="fa fa-ban"></i> 
-    Вернуться
-</a>

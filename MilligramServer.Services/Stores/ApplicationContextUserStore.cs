@@ -222,10 +222,8 @@ public class ApplicationContextUserStore : IApplicationContextUserStore, IAsyncD
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         var isUserRolesLoaded = user.UsersRoles != null &&
             (!user.UsersRoles.Any() || user.UsersRoles.First().Role != null);
-        // ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
         return isUserRolesLoaded
             ? user.UsersRoles!
@@ -241,11 +239,9 @@ public class ApplicationContextUserStore : IApplicationContextUserStore, IAsyncD
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         var isUserRolesLoaded = user.UsersRoles != null &&
             (!user.UsersRoles.Any() || user.UsersRoles.First().Role != null);
-        // ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-
+        
         return isUserRolesLoaded
             ? user.UsersRoles!
                 .Any(userRole => userRole.Role.NormalizedName == roleName)

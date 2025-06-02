@@ -17,6 +17,22 @@ html {
   min-height: 100%;
 }
 
+.main-content {
+    min-height: calc(100vh - 150px); /* Высота минус header/footer */
+    display: flex;
+    flex-direction: column;
+}
+
+.table-container {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.footer-content {
+    margin-top: auto;
+    padding: 1rem 0;
+}
+
 body {
   margin-bottom: 60px;
 }

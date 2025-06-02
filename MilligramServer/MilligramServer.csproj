@@ -26,4 +26,8 @@
     <ProjectReference Include="..\MilligramServer.Services\MilligramServer.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Api\" />
+  </ItemGroup>
+
 </Project>
