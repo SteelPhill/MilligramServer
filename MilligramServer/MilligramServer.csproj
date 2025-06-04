@@ -27,14 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\Api\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Update="Views\Chats\Details.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\Api\" />
   </ItemGroup>
 
 </Project>

@@ -18,7 +18,7 @@ public static class ChatExtensions
         {
             Id = chat.Id,
             Name = chat.Name,
-            OwnerUserId = chat.OwnerUserId == null ? null : chat.OwnerUserId,
+            OwnerUserId = chat.OwnerUserId,
             OwnerUserName = chat.OwnerUser?.Name,
             IsDeleted = chat.IsDeleted
         };

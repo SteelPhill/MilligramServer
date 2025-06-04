@@ -97,6 +97,14 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionsDropdown-@user.Id">
                                     <li>
                                         <a class="dropdown-item"
+                                           asp-controller="Contacts"
+                                           asp-action="Index"
+                                           asp-route-userId="@user.Id">
+                                            <i class="fa fa-users me-2"></i>Контакты
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
                                            asp-controller="Chats"
                                            asp-action="Index"
                                            asp-route-userId="@user.Id">
