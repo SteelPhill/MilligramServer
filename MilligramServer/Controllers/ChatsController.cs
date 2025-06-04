@@ -6,6 +6,7 @@ using MilligramServer.Database.Context.Factory;
 using MilligramServer.Domain;
 using MilligramServer.Extensions.Models;
 using MilligramServer.Models.Chats;
+using MilligramServer.Models.Users;
 using MilligramServer.Services.Managers;
 
 namespace MilligramServer.Controllers;
@@ -30,23 +31,20 @@ public class ChatsController : Controller
     [Route("Users/{userId:guid}/[controller]")]
     public async Task<IActionResult> Index(
         [FromRoute] Guid userId,
-        [FromQuery] string? sortBy,
-        [FromQuery] string? searchString,
-        [FromQuery] int page = 1,
-        CancellationToken cancellationToken = default)
+        [FromQuery] ChatsIndexModel? model,
+        CancellationToken cancellationToken)
     {
         var user = await _applicationContextUserManager.FindByIdAsync(userId.ToString());
         if (user == null)
             return NotFound();
 
-        var chatsQuery = _applicationContextUserManager.Users
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.UsersChats.Select(uc => uc.Chat))
-            .Include(c => c.OwnerUser)
-            .Include(u => u.UsersChats
-                .Where(uc => uc.UserId == userId))
-            .ThenInclude(uc => uc.User)
+        var chatsQuery = _context.Chats
+            .Where(chat => chat.UsersChats
+                .Any(userChat => userChat.UserId == userId))
+            .Include(chat => chat.OwnerUser)
             .AsNoTracking();
+
+        var searchString = model?.SearchString;
 
         if (!string.IsNullOrEmpty(searchString))
         {
@@ -55,7 +53,7 @@ public class ChatsController : Controller
                 EF.Functions.Like(chat.Name, $"%{searchString}%"));
         }
 
-        chatsQuery = sortBy switch
+        chatsQuery = model?.SortBy switch
         {
             nameof(ChatModel.Id) => chatsQuery.OrderBy(chat => chat.Id),
             nameof(ChatModel.Id) + Constants.DescSuffix => chatsQuery.OrderByDescending(chat => chat.Id),
@@ -66,6 +64,7 @@ public class ChatsController : Controller
             _ => chatsQuery.OrderBy(chat => chat.Id)
         };
 
+        var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
         var totalCount = await chatsQuery.CountAsync(cancellationToken);
         var chats = await chatsQuery
             .Skip((page - Constants.FirstPage) * Constants.PageSize)
@@ -77,10 +76,58 @@ public class ChatsController : Controller
             User = await user.ToModelAsync(_applicationContextUserManager),
             UserId = user.Id,
             Chats = chats.ToModels().ToArray(),
-            SortBy = sortBy,
+            SortBy = model?.SortBy,
             Page = page,
-            TotalCount = totalCount,
-            SearchString = searchString
+            TotalCount = totalCount
+        });
+    }
+
+    [HttpGet("Users/{userId:guid}/[controller]/{chatId:guid}")]
+    public async Task<IActionResult> Details(
+        [FromRoute] Guid userId,
+        [FromRoute] Guid chatId,
+        [FromQuery] ChatDetailsModel model,
+        CancellationToken cancellationToken)
+    {
+        var user = await _applicationContextUserManager.FindByIdAsync(userId.ToString());
+        var chat = await _context.Chats
+            .Include(chat => chat.OwnerUser)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(chat => chat.Id == chatId);
+
+        if (user == null || chat == null)
+            return NotFound();
+
+        var usersQuery = _context.Users
+            .Where(chat => chat.UsersChats
+                .Any(userChat => userChat.ChatId == chatId))           
+            .Include(chat => chat.UsersChats)
+            .ThenInclude(userChat => userChat.Chat)
+            .AsNoTracking();
+
+        usersQuery = model?.SortBy switch
+        {
+            nameof(UserModel.Id) => usersQuery.OrderBy(chat => chat.Id),
+            nameof(UserModel.Id) + Constants.DescSuffix => usersQuery.OrderByDescending(chat => chat.Id),
+            nameof(UserModel.Name) => usersQuery.OrderBy(chat => chat.Name),
+            nameof(UserModel.Name) + Constants.DescSuffix => usersQuery.OrderByDescending(chat => chat.Name),
+            _ => usersQuery.OrderBy(chat => chat.Id)
+        };
+
+        var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);
+        var totalCount = await usersQuery.CountAsync(cancellationToken);
+        var users = await usersQuery
+            .Skip((page - Constants.FirstPage) * Constants.PageSize)
+            .Take(Constants.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return View(new ChatDetailsModel
+        {
+            Chat = chat.ToModel(),
+            Users = await users.ToModelsAsync(_applicationContextUserManager).ToArrayAsync(cancellationToken),
+            SortBy = model?.SortBy,
+            Page = page,
+            TotalCount = totalCount
         });
     }
 
@@ -89,13 +136,13 @@ public class ChatsController : Controller
         [FromRoute] Guid userId,
         [FromRoute] Guid chatId)
     {
-        var chat = await _context.Chats
-            .Include(c => c.UsersChats)
-            .FirstOrDefaultAsync(c => c.Id == chatId);
+        var user = await _applicationContextUserManager.FindByIdAsync(userId.ToString());
+        var chat = await _context.Chats.AsNoTracking().FirstOrDefaultAsync(chat => chat.Id == chatId);
 
-        if (chat == null) return NotFound();
+        if (user == null || chat == null)
+            return NotFound();
 
-        return View(new UserChatModel
+        return View(new ChatUserModel
         {
             UserId = userId,
             ChatId = chatId,
@@ -108,21 +155,22 @@ public class ChatsController : Controller
     public async Task<IActionResult> Edit(
         [FromRoute] Guid userId,
         [FromRoute] Guid chatId,
-        [FromForm] UserChatModel model)
+        [FromForm] ChatUserModel model)
     {
+        var user = await _applicationContextUserManager.FindByIdAsync(userId.ToString());
+        var chat = await _context.Chats.FirstOrDefaultAsync(chat => chat.Id == chatId);
+
         if (!ModelState.IsValid)
         {
-            var chat = await _context.Chats.FindAsync(chatId);
             if (chat != null) 
                 model.Chat = chat.ToModel();
             return View(model);
         }
 
-        var chatToUpdate = await _context.Chats.FindAsync(chatId);
-        if (chatToUpdate == null) 
+        if (user == null || chat == null) 
             return NotFound();
 
-        chatToUpdate.Name = model.ChatName;
+        chat.Name = model.ChatName;
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Index", "Chats", new { userId });
@@ -133,8 +181,10 @@ public class ChatsController : Controller
         [FromRoute] Guid userId,
         [FromRoute] Guid chatId)
     {
-        var chat = await _context.Chats.FirstOrDefaultAsync(c => c.Id == chatId);
-        if (chat == null)
+        var user = await _applicationContextUserManager.FindByIdAsync(userId.ToString());
+        var chat = await _context.Chats.FirstOrDefaultAsync(chat => chat.Id == chatId);
+
+        if (user == null || chat == null)
             return NotFound();
 
         chat.IsDeleted = true;
@@ -148,8 +198,10 @@ public class ChatsController : Controller
         [FromRoute] Guid userId,
         [FromRoute] Guid chatId)
     {
-        var chat = await _context.Chats.FirstOrDefaultAsync(c => c.Id == chatId);
-        if (chat == null)
+        var user = await _applicationContextUserManager.FindByIdAsync(userId.ToString());
+        var chat = await _context.Chats.FirstOrDefaultAsync(chat => chat.Id == chatId);
+
+        if (user == null || chat == null)
             return NotFound();
 
         chat.IsDeleted = false;

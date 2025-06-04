@@ -5,14 +5,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MilligramServer.Models.Chats;
 
-public class UserChatModel
+public class ChatUserModel
 {
+    [DisplayName("Id пользователя")]
     public Guid UserId { get; set; }
+
+    [DisplayName("Id чата")]
     public Guid ChatId { get; set; }
 
     [Required(ErrorMessage = "Не указано название")]
     [DisplayName("Название чата")]
     public string ChatName { get; set; }
 
+    [DisplayName("Чат")]
     public ChatModel Chat { get; set; }
 }

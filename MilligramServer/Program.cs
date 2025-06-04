@@ -14,7 +14,6 @@ using NLog.Extensions.Logging;
 using NLog.Web;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using Microsoft.EntityFrameworkCore;
 
 namespace MilligramServer;
 
@@ -25,8 +24,6 @@ public static class Program
         ComponentModelResourceManagerHelper.OverrideResourceManager();
 
         var builder = WebApplication.CreateBuilder(args);
-
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 
         LogManager.Configuration = new NLogLoggingConfiguration(
             builder.Configuration.GetSection("NLog"));
@@ -137,7 +134,7 @@ public static class Program
 
         var app = builder.Build();
 
-        await ApplyMigrationsAsync(app);
+        //await ApplyMigrationsAsync(app);
         InitializeUsersAndRolesAsync(app)
             .FireAndForgetSafeAsync();
 

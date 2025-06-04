@@ -1,0 +1,69 @@
+﻿@model MessageModel
+
+@{
+    ViewData["Title"] = $"Сообщение (Id = {Model.Id})";
+}
+
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>
+            Сообщение<br />
+            <small class="text-muted">Id = @Model.Id</small><br />
+            <small class="text-muted">Создано = @Model.CreationTime</small><br />
+            <small class="text-muted">Изменено = @Model.LastChangeTime</small><br />
+            <small class="text-muted">Id чата = @Model.ChatId</small><br />
+            <small class="text-muted">Название чата = @Model.ChatName</small><br />
+            <small class="text-muted">Id автора = @Model.UserId</small><br />
+            <small class="text-muted">Логин автора = @Model.UserName</small><br />
+            <small class="text-muted">Статус =
+                @if(Model.IsDeleted == false)
+                {
+                    <small> активно</small>
+                }
+                else
+                {
+                    <small> удалено</small>
+                }
+            </small>
+        </h2>
+    </div>
+</div>
+
+<div class="table-container mt-3">
+    <table class="table table-dark table-hover align-middle">
+        <colgroup>
+            <col style="width: 50%">
+            <col style="width: 50%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Text)</th>
+                <th>@Html.DisplayNameFor(model => model.File)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    @if (Model.Text == null)
+                    {
+                        <span>Пусто</span>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Text)
+                    }
+                </td>
+                <td>
+                    @if (Model.File == null)
+                    {
+                        <span>Пусто</span>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.File)
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
