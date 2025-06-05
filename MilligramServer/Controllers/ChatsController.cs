@@ -59,6 +59,8 @@ public class ChatsController : Controller
             nameof(ChatModel.Id) + Constants.DescSuffix => chatsQuery.OrderByDescending(chat => chat.Id),
             nameof(ChatModel.Name) => chatsQuery.OrderBy(chat => chat.Name),
             nameof(ChatModel.Name) + Constants.DescSuffix => chatsQuery.OrderByDescending(chat => chat.Name),
+            nameof(ChatModel.OwnerUserName) => chatsQuery.OrderBy(chat => chat.OwnerUser == null ? "" : chat.OwnerUser.Name),
+            nameof(ChatModel.OwnerUserName) + Constants.DescSuffix => chatsQuery.OrderByDescending(chat => chat.OwnerUser == null ? "" : chat.OwnerUser.Name),
             nameof(ChatModel.IsDeleted) => chatsQuery.OrderBy(chat => chat.IsDeleted),
             nameof(ChatModel.IsDeleted) + Constants.DescSuffix => chatsQuery.OrderByDescending(chat => chat.IsDeleted),
             _ => chatsQuery.OrderBy(chat => chat.Id)
@@ -107,11 +109,11 @@ public class ChatsController : Controller
 
         usersQuery = model?.SortBy switch
         {
-            nameof(UserModel.Id) => usersQuery.OrderBy(chat => chat.Id),
-            nameof(UserModel.Id) + Constants.DescSuffix => usersQuery.OrderByDescending(chat => chat.Id),
-            nameof(UserModel.Name) => usersQuery.OrderBy(chat => chat.Name),
-            nameof(UserModel.Name) + Constants.DescSuffix => usersQuery.OrderByDescending(chat => chat.Name),
-            _ => usersQuery.OrderBy(chat => chat.Id)
+            nameof(UserModel.Id) => usersQuery.OrderBy(user => user.Id),
+            nameof(UserModel.Id) + Constants.DescSuffix => usersQuery.OrderByDescending(user => user.Id),
+            nameof(UserModel.Name) => usersQuery.OrderBy(user => user.Name),
+            nameof(UserModel.Name) + Constants.DescSuffix => usersQuery.OrderByDescending(user => user.Name),
+            _ => usersQuery.OrderBy(user => user.Id)
         };
 
         var page = Math.Max(Constants.FirstPage, model?.Page ?? Constants.FirstPage);

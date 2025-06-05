@@ -10,6 +10,8 @@ public static class Constants
     public const int FirstPage = 1;
     public const int PageSize = 5;
 
+    public const int MinPasswordSize = 8;
+
     public const string AllowedUserNameCharacters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 
     public const string MultiAuthScheme = "MultiAuthScheme";
