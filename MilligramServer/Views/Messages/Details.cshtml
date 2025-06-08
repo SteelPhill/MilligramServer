@@ -15,8 +15,9 @@
             <small class="text-muted">Название чата = @Model.ChatName</small><br />
             <small class="text-muted">Id автора = @Model.UserId</small><br />
             <small class="text-muted">Логин автора = @Model.UserName</small><br />
-            <small class="text-muted">Статус =
-                @if(Model.IsDeleted == false)
+            <small class="text-muted">
+                Статус =
+                @if (Model.IsDeleted == false)
                 {
                     <small> активно</small>
                 }
@@ -32,21 +33,21 @@
 <div class="table-container mt-3">
     <table class="table table-dark table-hover align-middle">
         <colgroup>
-            <col style="width: 50%">
-            <col style="width: 50%">
+            <col style="width: 70%">
+            <col style="width: 30%">
         </colgroup>
         <thead>
             <tr>
                 <th>@Html.DisplayNameFor(model => model.Text)</th>
-                <th>@Html.DisplayNameFor(model => model.File)</th>
+                <th>Файл</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    @if (Model.Text == null)
+                    @if (string.IsNullOrEmpty(Model.Text))
                     {
-                        <span>Пусто</span>
+                        <span><Отсутствует></span>
                     }
                     else
                     {
@@ -54,13 +55,29 @@
                     }
                 </td>
                 <td>
-                    @if (Model.File == null)
+                    @if (Model.FileId == null)
                     {
-                        <span>Пусто</span>
+                        <span><Отсутствует></span>
                     }
                     else
                     {
-                        @Html.DisplayFor(model => model.File)
+                        <div class="file-container">
+                            @if (Model.File?.IsImage == true)
+                            {
+                                <div class="image-preview mt-2">
+                                    <img src="@Url.Action("DownloadFile", "Messages", new { fileId = Model.FileId })"
+                                         class="img-thumbnail"
+                                         style="max-height: 200px;"
+                                         alt="Превью файла" />
+                                </div>
+                            }
+
+                            <a href="@Url.Action("DownloadFile", "Messages", new { fileId = Model.FileId })"
+                               class="btn btn-primary"
+                               download>
+                                <i class="fas fa-download"></i> Скачать файл
+                            </a>
+                        </div>
                     }
                 </td>
             </tr>

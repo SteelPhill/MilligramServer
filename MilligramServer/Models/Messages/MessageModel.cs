@@ -1,5 +1,6 @@
 ﻿#pragma warning disable CS8618
 
+using MilligramServer.Models.Files;
 using System.ComponentModel;
 
 namespace MilligramServer.Models.Messages;
@@ -13,7 +14,10 @@ public class MessageModel
     public string? Text { get; set; }
 
     [DisplayName("Файл")]
-    public string? File { get; set; }
+    public Guid? FileId { get; set; }
+
+    [DisplayName("Файл")]
+    public FileModel? File { get; set; }
 
     [DisplayName("Создано")]
     public DateTime CreationTime { get; set; }

@@ -1,6 +1,7 @@
 ﻿using MilligramServer.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using File = MilligramServer.Domain.Entities.File;
 
 namespace MilligramServer.Database.Context;
 
@@ -13,6 +14,7 @@ public class ApplicationContext : DbContext
     public DbSet<UserChat> UsersChats => Set<UserChat>();
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Message> Messages => Set<Message>();
+    public DbSet<File> Files => Set<File>();
 
     private readonly ILogger<ApplicationContext>? _logger;
 
@@ -198,6 +200,12 @@ public class ApplicationContext : DbContext
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Message>()
+            .HasOne(m => m.File)
+            .WithOne(f => f.Message)
+            .HasForeignKey<Message>(m => m.FileId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Message>()
             .Property(m => m.CreationTime)
             .HasDefaultValueSql("GETDATE()");
 
@@ -210,10 +218,32 @@ public class ApplicationContext : DbContext
                 "CK_Messages_Text",
                 "Text IS NULL OR LEN(Text) > 0"));
 
-        modelBuilder.Entity<Message>()
+        #endregion
+
+        #region File
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.Name)
+            .HasMaxLength(Constants.MaxFileNameLength);
+
+        modelBuilder.Entity<File>()
+            .Property(f => f.Extension)
+            .HasMaxLength(Constants.MaxFileExtensionLength);
+
+        modelBuilder.Entity<File>()
             .ToTable(t => t.HasCheckConstraint(
-                "CK_Messages_FilePath",
-                "FilePath IS NULL OR LEN(FilePath) > 0"));
+            "CK_Files_Name",
+            "LEN(Name) > 0"));
+
+        modelBuilder.Entity<File>()
+            .ToTable(t => t.HasCheckConstraint(
+            "CK_Files_Extension",
+            "LEN(Extension) > 0"));
+
+        modelBuilder.Entity<File>()
+            .ToTable(t => t.HasCheckConstraint(
+            "CK_Files_SizeBytes",
+            $"SizeBytes > 0 AND SizeBytes <= {Constants.MaxFileSizeBytesLength}"));
 
         #endregion
     }

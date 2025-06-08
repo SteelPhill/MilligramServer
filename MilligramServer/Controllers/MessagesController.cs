@@ -101,6 +101,7 @@ public class MessagesController : Controller
         var message = await _context.Messages
             .Include(message => message.Chat)
             .Include(message => message.User)
+            .Include(message => message.File)
             .FirstOrDefaultAsync(message => message.Id == messageId);
 
         if (user == null || chat == null || message == null)
@@ -145,5 +146,31 @@ public class MessagesController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Index", "Messages", new { userId, chatId });
+    }
+
+    [HttpGet("Files/[action]/{fileId:guid}")]
+    public async Task<IActionResult> DownloadFile(
+        [FromRoute] Guid fileId)
+    {
+        var file = await _context.Files
+            .FirstOrDefaultAsync(file => file.Id == fileId);
+
+        if (file == null)
+            return NotFound();
+
+        return File(file.Content, GetMimeType(file.Extension), $"{file.Name}{file.Extension}");
+    }
+
+    private static string GetMimeType(string extension)
+    {
+        return extension.ToLower() switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".pdf" => "application/pdf",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            _ => "application/octet-stream"
+        };
     }
 }

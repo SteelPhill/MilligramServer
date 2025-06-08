@@ -18,7 +18,8 @@ public static class MessageExtensions
         {
             Id = message.Id,
             Text = message.Text,
-            File = message.FilePath,
+            FileId = message.FileId,
+            File = message.File?.ToModel(),
             CreationTime = message.CreationTime,
             LastChangeTime = message.LastChangeTime,
             ChatId = message.ChatId,

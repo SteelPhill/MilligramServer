@@ -6,7 +6,8 @@ public class Message
 {
     public Guid Id { get; set; }
     public string? Text { get; set; }
-    public string? FilePath { get; set; }
+    public Guid? FileId { get; set; }
+    public File? File { get; set; }
     public DateTime CreationTime { get; set; }
     public DateTime LastChangeTime { get; set; }
     public Guid ChatId { get; set; }
