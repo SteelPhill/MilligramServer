@@ -10,8 +10,6 @@ public static class Constants
     public const int FirstPage = 1;
     public const int PageSize = 5;
 
-    public const int MinPasswordSize = 8;
-
     public const string AllowedUserNameCharacters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 
     public const string MultiAuthScheme = "MultiAuthScheme";
@@ -20,7 +18,7 @@ public static class Constants
 
     public const string JwtIssuer = "MilligramServer";
     public const string JwtAudience = "MilligramServerClient";
-    public static readonly TimeSpan JwtLifetime = TimeSpan.FromMinutes(1);
+    public static readonly TimeSpan JwtLifetime = TimeSpan.FromMinutes(60);
     private const string JwtKey = "AnySecretKeyForMilligramServer!123456";
 
     public static SymmetricSecurityKey GetJwtSymmetricSecurityKey()

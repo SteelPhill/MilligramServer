@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using File = MilligramServer.Domain.Entities.File;
+using MilligramServer.Common;
 
 namespace MilligramServer.Database.Context;
 
@@ -243,7 +244,7 @@ public class ApplicationContext : DbContext
         modelBuilder.Entity<File>()
             .ToTable(t => t.HasCheckConstraint(
             "CK_Files_SizeBytes",
-            $"SizeBytes > 0 AND SizeBytes <= {Constants.MaxFileSizeBytesLength}"));
+            $"SizeBytes > 0 AND SizeBytes <= {Constants.MaxFileSizeBytes}"));
 
         #endregion
     }

@@ -16,6 +16,7 @@
   </ItemGroup>	
 
   <ItemGroup>
+    <ProjectReference Include="..\MilligramServer.Common\MilligramServer.Common.csproj" />
     <ProjectReference Include="..\MilligramServer.Domain\MilligramServer.Domain.csproj" />
   </ItemGroup>
 

@@ -62,8 +62,8 @@ public class AccountApiController : ControllerBase
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
 
-        if (register.Password.Length < Constants.MinPasswordSize)
-            ModelState.AddModelError(nameof(register.Password), $"Минимальная длина пароля {Constants.MinPasswordSize} символов");
+        if (register.Password.Length < Common.Constants.MinUserPasswordLength)
+            ModelState.AddModelError(nameof(register.Password), $"Минимальная длина пароля {Common.Constants.MinUserPasswordLength} символов");
 
         var conflictedUser = await _applicationContextUserManager.FindByNameAsync(register.Login);
         if (conflictedUser != null)
@@ -97,8 +97,8 @@ public class AccountApiController : ControllerBase
 
         if (changePassword.NewPassword.IsNullOrEmpty())
             ModelState.AddModelError(nameof(changePassword.NewPassword), "Новый пароль обязателен для заполнения");
-        else if (changePassword.NewPassword.Length < Constants.MinPasswordSize)
-            ModelState.AddModelError(nameof(changePassword.NewPassword), $"Минимальная длина нового пароля {Constants.MinPasswordSize} символов");
+        else if (changePassword.NewPassword.Length < Common.Constants.MinUserPasswordLength)
+            ModelState.AddModelError(nameof(changePassword.NewPassword), $"Минимальная длина нового пароля {Common.Constants.MinUserPasswordLength} символов");
 
         if (!ModelState.IsValid)
             throw new BadRequestException(ModelState.JoinErrors());
