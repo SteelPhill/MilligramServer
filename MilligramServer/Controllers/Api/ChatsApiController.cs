@@ -59,19 +59,19 @@ public class ChatsApiController : ControllerBase
 
         var chat = await context.Chats
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => !c.IsDeleted && c.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == id, cancellationToken);
 
         if (chat == null)
             throw new NotFoundException($"Не найден чат с id = {id}");
 
-        var chatDto = new ChatDetailsDto
+        var chatDetailsDto = new ChatDetailsDto
         {
             Id = chat.Id,
             Name = chat.Name,
             OwnerUserId = chat.OwnerUserId
         };
 
-        return chatDto;
+        return chatDetailsDto;
     }
 
     [HttpPost]
