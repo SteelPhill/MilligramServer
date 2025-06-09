@@ -39,14 +39,11 @@ public class ChatsApiController : ControllerBase
 
         var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var chatsQuery = context.Chats
+        var chats = await context.UsersChats
             .AsNoTracking()
-            .Where(chat => !chat.IsDeleted && chat.UsersChats
-                .Any(userChat => userChat.UserId.ToString() == userId));
-
-        chatsQuery = chatsQuery.OrderBy(chat => chat.Name);
-
-        var chats = await chatsQuery
+            .Where(userChat => !userChat.Chat.IsDeleted && !userChat.User.IsDeleted && userChat.UserId.ToString() == userId)
+            .Select(userChat => userChat.Chat)
+            .OrderBy(chat => chat.Name)
             .Select(chat => chat.ToDetailsDto())
             .ToArrayAsync(cancellationToken);
 
@@ -62,12 +59,19 @@ public class ChatsApiController : ControllerBase
 
         var chat = await context.Chats
             .AsNoTracking()
-            .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(c => !c.IsDeleted && c.Id == id, cancellationToken);
 
         if (chat == null)
             throw new NotFoundException($"Не найден чат с id = {id}");
 
-        return chat.ToDetailsDto();
+        var chatDto = new ChatDetailsDto
+        {
+            Id = chat.Id,
+            Name = chat.Name,
+            OwnerUserId = chat.OwnerUserId
+        };
+
+        return chatDto;
     }
 
     [HttpPost]
@@ -161,16 +165,18 @@ public class ChatsApiController : ControllerBase
     {
         await using var context = _applicationContextFactory.Create();
 
-        var chat = await context.Chats
-            .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == id, cancellationToken);
+        var chatExists = await context.Chats
+            .AsNoTracking()
+            .AnyAsync(chat => !chat.IsDeleted && chat.Id == id, cancellationToken);
 
-        if (chat == null)
+        if (!chatExists)
             throw new NotFoundException($"Не найден чат с id = {id}");
 
-        var users = await context.Users
+        var users = await context.UsersChats
             .AsNoTracking()
-            .Where(user => !user.IsDeleted && user.UsersChats
-                .Any(userChat => userChat.ChatId == id))
+            .Where(userChat => !userChat.Chat.IsDeleted && !userChat.User.IsDeleted && userChat.ChatId == id)
+            .Select(userChat => userChat.User)
+            .OrderBy(user => user.Name)
             .Select(user => user.ToDto())
             .ToArrayAsync(cancellationToken);
 
@@ -191,11 +197,11 @@ public class ChatsApiController : ControllerBase
         if (chat == null)
             throw new NotFoundException($"Не найден чат с id = {chatId}");
 
-        var user = await context.Users
+        var userExists = await context.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(user => !user.IsDeleted && user.Id == userId, cancellationToken);
+            .AnyAsync(user => !user.IsDeleted && user.Id == userId, cancellationToken);
 
-        if (user == null)
+        if (!userExists)
             throw new NotFoundException($"Не найден пользователь с id = {userId}");
 
         var isUserInChat = await context.UsersChats
@@ -232,11 +238,11 @@ public class ChatsApiController : ControllerBase
         if (chat == null)
             throw new NotFoundException($"Не найден чат с id = {chatId}");
 
-        var user = await context.Users
+        var userExists = await context.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(user => !user.IsDeleted && user.Id == userId, cancellationToken);
+            .AnyAsync(user => !user.IsDeleted && user.Id == userId, cancellationToken);
 
-        if (user == null)
+        if (!userExists)
             throw new NotFoundException($"Не найден пользователь с id = {userId}");
 
         var userChat = await context.UsersChats
@@ -283,11 +289,11 @@ public class ChatsApiController : ControllerBase
     {
         await using var context = _applicationContextFactory.Create();
 
-        var chat = await context.Chats
+        var chatExists = await context.Chats
             .AsNoTracking()
-            .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
+            .AnyAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
 
-        if (chat == null)
+        if (!chatExists)
             throw new NotFoundException($"Не найден чат с id = {chatId}");
 
         var message = await context.Messages
@@ -312,7 +318,7 @@ public class ChatsApiController : ControllerBase
 
         var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var user = await context.Users
-            .FirstOrDefaultAsync(user => !user.IsDeleted && user.Id == Guid.Parse(userId!), cancellationToken);
+            .FirstOrDefaultAsync(user => !user.IsDeleted && user.Id.ToString() == userId, cancellationToken);
 
         var chat = await context.Chats
             .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
@@ -364,10 +370,11 @@ public class ChatsApiController : ControllerBase
     {
         await using var context = _applicationContextFactory.Create();
 
-        var chat = await context.Chats
-            .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
+        var chatExists = await context.Chats
+            .AsNoTracking()
+            .AnyAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
 
-        if (chat == null)
+        if (!chatExists)
             throw new NotFoundException($"Не найден чат с id = {chatId}");
 
         if (messageDto.FileDto != null && messageDto.FileDto.SizeBytes > Common.Constants.MaxFileSizeBytes)
@@ -404,11 +411,11 @@ public class ChatsApiController : ControllerBase
     {
         await using var context = _applicationContextFactory.Create();
 
-        var chat = await context.Chats
+        var chatExists = await context.Chats
             .AsNoTracking()
-            .FirstOrDefaultAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
+            .AnyAsync(chat => !chat.IsDeleted && chat.Id == chatId, cancellationToken);
 
-        if (chat == null)
+        if (!chatExists)
             throw new NotFoundException($"Не найден чат с id = {chatId}");
 
         var message = await context.Messages
