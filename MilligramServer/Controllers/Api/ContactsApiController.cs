@@ -64,6 +64,23 @@ public class ContactsApiController : ControllerBase
 
         return contact.ToDto();
     }
+    [HttpGet("{name:String}")]
+    public async Task<ContactDto> Get(
+        [FromRoute] String name,
+        CancellationToken cancellationToken)
+    {
+        await using var context = _applicationContextFactory.Create();
+
+        var contact = await context.Contacts
+            .AsNoTracking()
+            .Include(contact => contact.AddedUser)
+            .FirstOrDefaultAsync(contact => !contact.IsDeleted && contact.Name == name, cancellationToken);
+
+        if (contact == null)
+            throw new NotFoundException($"Не найден контакт с Именем = {name}");
+
+        return contact.ToDto();
+    }
 
     [HttpPost]
     public async Task<ContactDto> Create(
